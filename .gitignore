@@ -32,3 +32,6 @@
 *.app
 .vscode/arduino.json
 .vscode/c_cpp_properties.json
+.vscode/c_cpp_properties copy.json
+.vscode/settings.json
+.vscode/tasks.json

@@ -5,6 +5,7 @@
  the IP address obtained, and other network details.
 
  */
+
 #include <SPI.h>
 #include <WiFi101.h>
 
@@ -12,8 +13,8 @@
 
 // Initialize the client library
 WiFiClient client;
-const char *msg_send = "Hello echo world!!!";
-char *msg_receive = "";
+const char *msg_send = "Hello echo world!!!11111111111122222222222222222244444444444444555555555";
+
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
@@ -39,46 +40,38 @@ void loop() {
   // check the network connection once every 10 seconds:
   wifiMaintainConnection();
 
-  if (client.connect(server, 10000)) {
+  if (client.connect(server, 7)) {
     Serial.println("TCP connected");
     // Write message to server:
-    Serial.println("Send message");
+    Serial.print("Send message: ");
+    Serial.println(msg_send);
     client.write(msg_send);
     
-    delay(500);
-    // Look for the response
-    int i = client.available();
-    Serial.print("Received: ");
-    //Serial.println(client.available());
-    while (client.available()){
+    Serial.print("Received message: ");
+    int timeOut = millis()+5000;
+    while (client.available()||millis()<timeOut){
+      if (client.available()){
         char c = client.read();
         Serial.print(c);
+      }
     }
-
-    if (!client.connected()) {
-      Serial.println();
-      Serial.println("disconnecting.");
-      client.stop();
-
-    }
-
+    Serial.println();
+    //Disconnect
+    Serial.println("Disconnecting.");
+    client.stop();    
   }
-  //printWifiStatus(WiFi.status());
   delay(10000);
 }
 
 void wifiMaintainConnection(){
  // attempt to connect to WiFi network if it's not connected:
-
   if(WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect to WPA SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network:
     WiFi.begin(ssid, pass);
-
     while (WiFi.status() == WL_IDLE_STATUS){      
-      // wait 1 seconds for connection:
-      delay(1000);     
+
     }
   }
   printWifiStatus(WiFi.status());
@@ -103,9 +96,9 @@ void printCurrentNet() {
 
 }
 
-void printWifiStatus(int status) {
+void printWifiStatus(int Status) {
   // print WiFi status:
-  switch (status) {
+  switch (Status) {
   case WL_CONNECTED:
     Serial.println("Connected to a WiFi network");
     printCurrentNet();
@@ -135,3 +128,4 @@ void printWifiStatus(int status) {
     break;
   }
 }
+
