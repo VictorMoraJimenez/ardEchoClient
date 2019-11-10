@@ -1,8 +1,7 @@
 /*
 
  This example connects to an WPA2 WiFi network.
- Then it prints the  MAC address of the WiFi shield,
- the IP address obtained, and other network details.
+ Then it connectos to a Echo Server and send a message
 
  */
 
@@ -14,12 +13,14 @@
 // Initialize the client library
 WiFiClient client;
 const char *msg_send = "Hello echo world!!!11111111111122222222222222222244444444444444555555555";
-
+const int PORT = 7;
+const int TIME_OUT = 5000;
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 int status = WL_IDLE_STATUS;     // the WiFi radio's status
-IPAddress server(192,168,10,1); //IP ECHO server
+IPAddress srv_addr(192,168,10,1); //IP ECHO server
+
 
 void setup() {
   //Initialize serial and wait for port to open:
@@ -40,7 +41,7 @@ void loop() {
   // check the network connection once every 10 seconds:
   wifiMaintainConnection();
 
-  if (client.connect(server, 7)) {
+  if (client.connect(srv_addr, PORT)) {
     Serial.println("TCP connected");
     // Write message to server:
     Serial.print("Send message: ");
@@ -48,7 +49,7 @@ void loop() {
     client.write(msg_send);
     
     Serial.print("Received message: ");
-    int timeOut = millis()+5000;
+    int timeOut = millis() + TIME_OUT;
     while (client.available()||millis()<timeOut){
       if (client.available()){
         char c = client.read();
@@ -59,6 +60,8 @@ void loop() {
     //Disconnect
     Serial.println("Disconnecting.");
     client.stop();    
+  } else{
+     Serial.println("Error connecting to the server");
   }
   delay(10000);
 }
@@ -66,15 +69,16 @@ void loop() {
 void wifiMaintainConnection(){
  // attempt to connect to WiFi network if it's not connected:
   if(WiFi.status() != WL_CONNECTED) {
+    printWifiStatus(WiFi.status());
     Serial.print("Attempting to connect to WPA SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network:
     WiFi.begin(ssid, pass);
-    while (WiFi.status() == WL_IDLE_STATUS){      
+    while (WiFi.status() == WL_IDLE_STATUS);
 
-    }
+    printWifiStatus(WiFi.status());
   }
-  printWifiStatus(WiFi.status());
+  
 }
 
 void printWifiIP() {
@@ -93,6 +97,7 @@ void printCurrentNet() {
     long rssi = WiFi.RSSI();
     Serial.print("signal strength (RSSI):");
     Serial.println(rssi);
+    printWifiIP();
 
 }
 
